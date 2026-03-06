@@ -1,18 +1,8 @@
 from fastapi import APIRouter, HTTPException, Query
 import re
-from summitcast.services.strava_service import get_strava_route
+from summitcast.services.strava_service import StravaService
 
 router = APIRouter()
-
-
-# @router.get("/route/{strava_route_url}")
-# def get_route(strava_route_url: str):
-#     try:
-#         print(f"Received request for Strava route: {strava_route_url}")
-#         route_id = extract_route_id()
-#         return get_strava_route(strava_route_url)
-#     except Exception as e:
-#         raise HTTPException(status_code=400, detail=str(e))
 
 
 def extract_route_id(url_or_id: str) -> str | None:
@@ -33,19 +23,15 @@ def extract_route_id(url_or_id: str) -> str | None:
 
 @router.get("/route")
 def get_route(route: str = Query(..., description="Strava route URL or numeric ID")):
-    """
-    Accepts either:
-      - /api/route?route=123456789
-      - /api/route?route=https://www.strava.com/routes/123456789
-    Returns the numeric route ID.
-    """
     route_id = extract_route_id(route)
     if not route_id:
         raise HTTPException(status_code=400, detail="Invalid Strava route URL or ID")
 
+    strava_service = StravaService(route_id)
+
     try:
         print(f"Received request for Strava route: {route_id}")
-        return get_strava_route(route_id)
+        return strava_service.get_strava_route()
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

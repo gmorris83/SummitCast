@@ -1,9 +1,12 @@
 <template>
   <div>
-    <h2>Route Info</h2>
+    <h2>Route</h2>
 
-    <p><strong>ID:</strong> {{ route.route_id }}</p>
+    <p><strong>{{ route.name }}</strong></p>
+    <p><strong>Created By:</strong> {{ route.athlete.username }}</p>
     <p><strong>Distance:</strong> {{ route.distance }}</p>
+    <p><strong>Elevation:</strong> {{ route.elevation_gain }}</p>
+    <p><strong>Estimated Finish Time:</strong> {{ route.estimated_moving_time }}</p>
 
     <div v-if="route.waypoints">
       <h3>Waypoints</h3>

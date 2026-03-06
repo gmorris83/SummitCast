@@ -33,8 +33,11 @@
         <h2 class="text-xl font-semibold mb-3">Route Info</h2>
 
         <p class="text-gray-700">
-          <span class="font-medium">Route ID:</span>
-          {{ routeData.route_id }}
+          <span class="font-medium">{{ routeData.name }}</span>
+        </p>
+        <p v-if="routeData.athlete.username" class="text-gray-700">
+          <span class="font-medium">Created By:</span>
+          {{ routeData.athlete.username }}
         </p>
 
         <p v-if="routeData.distance" class="text-gray-700">
@@ -42,20 +45,36 @@
           {{ routeData.distance }}
         </p>
 
-        <div v-if="routeData.waypoints" class="mt-4">
-          <h3 class="font-semibold mb-2">Waypoints</h3>
-          <ul class="space-y-1 text-sm text-gray-600">
-            <li
-              v-for="(wp, index) in routeData.waypoints"
-              :key="index"
-              class="bg-white px-3 py-1 rounded border"
-            >
-              {{ wp.lat }}, {{ wp.lng }}
-            </li>
-          </ul>
-        </div>
-      </div>
+        <p v-if="routeData.elevation_gain" class="text-gray-700">
+          <span class="font-medium">Elevation:</span>
+          {{ routeData.elevation_gain }}
+        </p>
 
+        <p v-if="routeData.estimated_moving_time" class="text-gray-700">
+          <span class="font-medium">Estimated Finish Time::</span>
+          {{ routeData.estimated_moving_time }}
+        </p>
+
+
+<!--        <div v-if="routeData.waypoints" class="mt-4">-->
+<!--          <h3 class="font-semibold mb-2">Waypoints</h3>-->
+<!--          <ul class="space-y-1 text-sm text-gray-600">-->
+<!--            <li-->
+<!--              v-for="(wp, index) in routeData.waypoints"-->
+<!--              :key="index"-->
+<!--              class="bg-white px-3 py-1 rounded border"-->
+<!--            >-->
+<!--              {{ wp.lat }}, {{ wp.lng }}-->
+<!--            </li>-->
+<!--          </ul>-->
+<!--        </div>-->
+
+        <RouteMap
+          v-if="routeData.polyline"
+          :polyline="routeData.polyline"
+          class="mt-6"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -63,7 +82,8 @@
 <script setup>
 import { ref } from 'vue'
 import { fetchRoute } from '../services/api'
-import RouteDetails from '../components/RouteDetails.vue'
+// import RouteDetails from '../components/RouteDetails.vue'
+import RouteMap from '../components/RouteMap.vue'
 
 const stravaRouteUrl = ref('')
 const routeData = ref(null)
@@ -77,6 +97,8 @@ const handleSubmit = async () => {
 
   try {
     routeData.value = await fetchRoute(stravaRouteUrl.value)
+    console.log("routeData.polyline");
+    console.log(routeData.polyline);
   } catch (err) {
     error.value = err.response?.data?.detail || 'Failed to fetch route'
   } finally {
