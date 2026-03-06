@@ -1,48 +1,55 @@
 <template>
-  <div class="w-full h-[500px] rounded-xl overflow-hidden border">
-    <LMap
-      :zoom="13"
-      :center="center"
-      style="height:100%; width:100%"
-    >
-      <LTileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution="© OpenStreetMap"
-      />
-
-      <LPolyline :lat-lngs="polyline" />
-    </LMap>
-  </div>
+  <div ref="mapContainer" class="w-full h-[500px] rounded border"></div>
 </template>
 
 <script setup>
-import { computed } from "vue"
-import { LMap, LTileLayer, LPolyline } from "@vue-leaflet/vue-leaflet"
-import "leaflet/dist/leaflet.css"
+import { ref, onMounted } from "vue"
 import L from "leaflet"
+import "leaflet/dist/leaflet.css"
 
-import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png"
-import markerIcon from "leaflet/dist/images/marker-icon.png"
-import markerShadow from "leaflet/dist/images/marker-shadow.png"
-
-delete L.Icon.Default.prototype._getIconUrl
-
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-})
+// const props = defineProps({
+//   polyline: {
+//     type: Array,
+//     required: true
+//   }
+// })
 
 const props = defineProps({
   polyline: {
     type: Array,
     required: true
+  },
+  waypoints: {
+    type: Array,
+    default: () => []
   }
 })
 
-const center = computed(() => {
-  return props.polyline?.[0] ?? [51.505, -0.09]
-})
+const mapContainer = ref(null)
 
-console.log(props.polyline);
+onMounted(() => {
+  if (!props.polyline || props.polyline.length === 0) return
+
+  const map = L.map(mapContainer.value)
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(map)
+
+  const route = L.polyline(props.polyline, {
+    color: "blue",
+    weight: 4
+  }).addTo(map)
+
+  map.fitBounds(route.getBounds())
+
+  // Add waypoint markers
+  props.waypoints.forEach((wp) => {
+    if (wp.lat && wp.lon) {
+      L.marker([wp.lat, wp.lon])
+        .addTo(map)
+        .bindPopup(wp.title ?? "Waypoint")
+    }
+  })
+})
 </script>
