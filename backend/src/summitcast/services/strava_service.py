@@ -3,11 +3,16 @@ from typing import Dict, Any
 import polyline
 import requests
 
-from summitcast.assets.domains import Athlete, Waypoint, Segment, Route
+from summitcast.assets.Athlete import Athlete
+from summitcast.assets.Route import Route
+from summitcast.assets.Waypoint import Waypoint
+from summitcast.assets.Segment import Segment
 from summitcast.helpers import strava_tokens
 
+#https://www.strava.com/routes/3406267604191386846
+
+
 class StravaService:
-        #https://www.strava.com/routes/3406267604191386846
     def __init__(self, strava_route_id: str):
         self.route_id = strava_route_id
 
@@ -92,7 +97,7 @@ class StravaService:
             id=data["id"],
             name=data["name"],
             description=data.get("description", ""),
-            distance=data["distance"],
+            distance= data["distance"],
             elevation_gain=data["elevation_gain"],
             estimated_moving_time=data["estimated_moving_time"],
             polyline=data["map"]["polyline"],

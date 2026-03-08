@@ -1,10 +1,10 @@
-  <template>
+<template>
   <div class="min-h-screen flex flex-col items-center justify-start px-4">
     <div class="w-full max-w-2xl bg-white shadow-lg rounded-2xl p-8 flex flex-col">
 
 
       <h1 class="text-2xl font-bold mb-4">
-        <img :src="logo" alt="Logo" class="mx-auto h-50 mb-1" />
+        <img :src="logo" alt="Logo" class="mx-auto h-50 mb-1"/>
       </h1>
 
       <form @submit.prevent="handleSubmit" class="flex gap-3 mb-6">
@@ -31,24 +31,26 @@
         <h2 class="text-xl font-semibold">Route Info</h2>
         <p class="text-gray-700 flex items-center gap-2">
           <span class="font-medium">{{ routeData.name }}</span>
-
           <a
-            :href="routeData.strava_url"
+            :href="stravaRouteUrl"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-orange-600 hover:underline text-sm"
           >
-            View on Strava
+            <img :src="strava_logo"
+                 alt="Open in Strava"
+                 class="w-10 hover:scale-105 transition"/>
           </a>
+
         </p>
         <p v-if="routeData.athlete.username">
           <span class="font-medium">Created By:</span> {{ routeData.athlete.username }}
         </p>
         <p v-if="routeData.distance">
-          <span class="font-medium">Distance:</span> {{ routeData.distance }} m
+          <span class="font-medium">Distance:</span> {{ distanceKm }} km
         </p>
+
         <p v-if="routeData.elevation_gain">
-          <span class="font-medium">Elevation:</span> {{ routeData.elevation_gain }} m
+          <span class="font-medium">Elevation:</span> {{ elevationM }} m
         </p>
 
         <!-- Map container with fixed height -->
@@ -64,10 +66,21 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import {ref, computed} from "vue"
 import RouteMap from "../components/RouteMap.vue"
-import { fetchRoute } from "../services/api"
+import {fetchRoute} from "../services/api"
 import logo from '../assets/logo.png'
+import strava_logo from '../assets/strava_logo.png'
+
+const distanceKm = computed(() => {
+  if (!routeData.value) return "0.00"
+  return (routeData.value.distance / 1000).toFixed(2)
+})
+
+const elevationM = computed(() => {
+  if (!routeData.value) return "0"
+  return Math.round(routeData.value.elevation_gain)
+})
 
 const stravaRouteUrl = ref("")
 const routeData = ref(null)
