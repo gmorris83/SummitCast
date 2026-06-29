@@ -47,6 +47,30 @@ class StravaService:
         data = response.json()
         return self.parse_strava_route(data)
 
+    async def get_elevation_data(self, route_id: int):
+
+        url = f"https://www.strava.com/api/v3/routes/{route_id}/streams"
+
+        access_tokens = strava_tokens.get_valid_access_token()
+
+        params = {
+            "keys": "distance,altitude",
+            "key_by_type": "true"
+        }
+
+        response = requests.get(
+            url,
+            headers={"Authorization": f"Bearer {access_tokens[0]}"},
+            params=params
+        )
+
+        data = response.json()
+
+        distance_km = [d / 1000 for d in data["distance"]["data"]]
+        elevation = data["altitude"]["data"]
+
+        return distance_km, elevation
+
 
     def parse_strava_route(self, data: Dict[str, Any]) -> Route:
         athlete_data = data["athlete"]

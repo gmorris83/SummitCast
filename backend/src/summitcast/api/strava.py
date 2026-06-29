@@ -22,7 +22,7 @@ def extract_route_id(url_or_id: str) -> str | None:
 
 
 @router.get("/route")
-def get_route(route: str = Query(..., description="Strava route URL or numeric ID")):
+async def get_route(route: str = Query(..., description="Strava route URL or numeric ID")):
     route_id = extract_route_id(route)
     if not route_id:
         raise HTTPException(status_code=400, detail="Invalid Strava route URL or ID")
@@ -31,7 +31,13 @@ def get_route(route: str = Query(..., description="Strava route URL or numeric I
 
     try:
         print(f"Received request for Strava route: {route_id}")
-        return strava_service.get_strava_route()
+
+        route_data = strava_service.get_strava_route()
+        #TODO
+        # distance_profile, elevation_profile = await strava_service.get_elevation_data(route_data.id)
+        # route_data.distance_profile = distance_profile
+        # route_data.elevation_profile = elevation_profile
+        return route_data
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

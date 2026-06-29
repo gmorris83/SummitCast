@@ -12,7 +12,7 @@ def _fetch_forecast(lat: float, lon: float) -> dict:
     params = {
         "latitude": lat,
         "longitude": lon,
-        "hourly": "temperature_2m,windspeed_10m,weathercode",
+        "hourly": "temperature_2m,apparent_temperature,windspeed_10m,weathercode",
         "daily": "temperature_2m_max,temperature_2m_min,weathercode",
         "timezone": "UTC",
     }
@@ -72,6 +72,7 @@ def apply_weather_to_waypoint(waypoint) -> None:
         ).replace(tzinfo=timezone.utc)
 
         waypoint.temperature_c = data["hourly"]["temperature_2m"][idx]
+        waypoint.feels_like_c = data["hourly"]["apparent_temperature"][idx]
         waypoint.wind_speed_ms = data["hourly"]["windspeed_10m"][idx]
         waypoint.weather_code = data["hourly"]["weathercode"][idx]
 

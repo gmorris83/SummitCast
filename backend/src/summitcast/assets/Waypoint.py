@@ -15,6 +15,7 @@ class Waypoint:
     weather_source: Optional[str] = None  # "hourly" or "daily"
     forecast_time: Optional[datetime] = None
     temperature_c: Optional[float] = None
+    feels_like_c: Optional[float] = None
     temp_min_c: Optional[float] = None
     temp_max_c: Optional[float] = None
     wind_speed_ms: Optional[float] = None

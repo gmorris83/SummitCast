@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Dict
 from .Athlete import Athlete
 from .Waypoint import Waypoint
@@ -17,7 +17,8 @@ class Route:
     waypoints: List[Waypoint]
     segments: List[Segment]
     map_urls: Dict[str, str]
-
+    distance_profile: List[float] = field(default_factory=list)
+    elevation_profile: List[float] = field(default_factory=list)
 
     @property
     def distance_meters(self) -> float:

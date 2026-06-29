@@ -10,3 +10,11 @@ export const fetchRoute = async (route) => {
   })
   return response.data
 }
+
+export const addWeather = async (route, startTime) => {
+  const response = await api.post('/weather', {
+    route,
+    start_time: startTime
+  })
+  return response.data
+}
