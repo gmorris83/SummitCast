@@ -94,7 +94,7 @@
           <div class="flex flex-col gap-4 border-b border-slate-200 px-5 py-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h3 class="text-base font-semibold text-slate-950">Weather planning</h3>
-              <p class="mt-1 text-sm text-slate-500">Choose a start date and hour, then add forecast data to each waypoint.</p>
+              <p class="mt-1 text-sm text-slate-500">Choose a start date, hour, and average pace, then add forecast data to each waypoint.</p>
             </div>
 
             <div class="flex flex-wrap items-end gap-3">
@@ -118,6 +118,25 @@
                   </option>
                 </select>
               </label>
+
+              <label class="flex min-w-48 flex-col gap-1 text-sm font-medium text-slate-700">
+                <span class="flex items-center justify-between gap-3">
+                  Average pace
+                  <span class="text-xs font-semibold text-slate-500">{{ formattedAveragePace }} /km</span>
+                </span>
+                <input
+                  v-model.number="averagePaceMinPerKm"
+                  type="range"
+                  min="3"
+                  max="20"
+                  step="0.25"
+                  class="h-10 accent-sky-700"
+                />
+              </label>
+
+              <div class="h-10 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                Finish <span class="font-semibold text-slate-950">{{ formattedEstimatedFinishTime }}</span>
+              </div>
 
               <button
                 type="button"
@@ -219,6 +238,7 @@ const dateInputValue = (date) => {
 
 const weatherDate = ref(dateInputValue(new Date()))
 const weatherHour = ref(String(new Date().getHours()).padStart(2, "0"))
+const averagePaceMinPerKm = ref(10)
 
 const hours = Array.from({length: 24}, (_, hour) => String(hour).padStart(2, "0"))
 
@@ -239,6 +259,31 @@ const isWeatherDateInPast = computed(() => {
 
 const hasWeather = computed(() => {
   return routeData.value?.waypoints?.some((waypoint) => waypoint.weather_source)
+})
+
+const estimatedFinishDate = computed(() => {
+  if (!routeData.value?.distance) return null
+
+  const distanceKm = routeData.value.distance / 1000
+  return new Date(selectedStartDate.value.getTime() + distanceKm * averagePaceMinPerKm.value * 60000)
+})
+
+const formattedAveragePace = computed(() => {
+  const minutes = Math.floor(averagePaceMinPerKm.value)
+  const seconds = Math.round((averagePaceMinPerKm.value - minutes) * 60)
+  return `${minutes}:${String(seconds).padStart(2, "0")}`
+})
+
+const formattedEstimatedFinishTime = computed(() => {
+  if (!estimatedFinishDate.value) return "-"
+
+  return estimatedFinishDate.value.toLocaleString([], {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  })
 })
 
 const handleSubmit = async () => {
@@ -268,7 +313,7 @@ const handleAddWeather = async () => {
   weatherLoading.value = true
 
   try {
-    routeData.value = await addWeather(routeData.value, selectedStartTime.value)
+    routeData.value = await addWeather(routeData.value, selectedStartTime.value, averagePaceMinPerKm.value)
   } catch (err) {
     weatherError.value = err.response?.data?.detail || "Failed to add weather"
   } finally {

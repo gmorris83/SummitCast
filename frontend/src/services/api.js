@@ -11,10 +11,11 @@ export const fetchRoute = async (route) => {
   return response.data
 }
 
-export const addWeather = async (route, startTime) => {
+export const addWeather = async (route, startTime, averagePaceMinPerKm) => {
   const response = await api.post('/weather', {
     route,
-    start_time: startTime
+    start_time: startTime,
+    average_pace_min_per_km: averagePaceMinPerKm
   })
   return response.data
 }
